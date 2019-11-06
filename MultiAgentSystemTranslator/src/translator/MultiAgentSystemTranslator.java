@@ -6,7 +6,10 @@ public class MultiAgentSystemTranslator {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		
-		new Instance("./FullRLFAP/CELAR/scen01/");
+		Instance test = new Instance("./FullRLFAP/CELAR/scen01/");
+		
+		
+		test.toXmlFile();
 		
 	}
 }
