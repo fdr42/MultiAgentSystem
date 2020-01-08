@@ -125,8 +125,9 @@ public class Instance {
 			indice++;
 			indice++;
 			constraint.setValue(Integer.parseInt(tab[indice]));
+			int length=tab.length;
 			if(tab.length==7){
-				constraint.setCost(Integer.parseInt(tab[indice]));
+				constraint.setCost(Integer.parseInt(tab[6]));
 			} else {
 				constraint.setCost(-1);
 			}
@@ -284,49 +285,34 @@ public class Instance {
                 variable.setAttributeNode(agentName);
                 
             }
-			//Predicates
 			Element predicatesElement = document.createElement("predicates");
-			predicatesElement.setAttribute("nbPredicates", "3");
+			predicatesElement.setAttribute("nbPredicates", "2");
 			root.appendChild(predicatesElement);
-
-			//Predicate EQUAL => Hard constraint
 			Element predicate = document.createElement("predicate");
-			predicate.setAttribute("name", "EQUAL");
+			predicate.setAttribute("name", "EQ");
 			Element parameters = document.createElement("parameters");
-			parameters.appendChild(document.createTextNode(" int V1 int V2 int VALUE "));
+			parameters.appendChild(document.createTextNode("int V1 int V2 int VALUE int Cost"));
 			predicate.appendChild(parameters);
 			Element expression = document.createElement("expression");
 			Element functional = document.createElement("functional");
-			functional.appendChild(document.createTextNode(" eq(abs(sub(V1, V2)),VALUE) "));
+			functional.appendChild(document.createTextNode("if(eq(abs(sub(V1, V2)),VALUE),0,Cost)"));
 			expression.appendChild(functional);
 			predicate.appendChild(expression);
 			predicatesElement.appendChild(predicate);
 
 			//Predicate GTHARD => Hard constraint
 			predicate = document.createElement("predicate");
-			predicate.setAttribute("name", "GTHARD");
+			predicate.setAttribute("name", "GT");
 			parameters = document.createElement("parameters");
-			parameters.appendChild(document.createTextNode(" int V1 int V2 int VALUE "));
+			parameters.appendChild(document.createTextNode("int V1 int V2 int VALUE int Cost"));
 			predicate.appendChild(parameters);
 			expression = document.createElement("expression");
 			functional = document.createElement("functional");
-			functional.appendChild(document.createTextNode(" gt(abs(sub(V1, V2)),VALUE) "));
+			functional.appendChild(document.createTextNode(" if(gt(abs(sub(V1, V2)),VALUE),0,Cost) "));
 			expression.appendChild(functional);
 			predicate.appendChild(expression);
 			predicatesElement.appendChild(predicate);
 
-			//Predicate GTSOFT => soft constraint
-			predicate = document.createElement("function");
-			predicate.setAttribute("name", "GTSOFT");
-			parameters = document.createElement("parameters");
-			parameters.appendChild(document.createTextNode(" int V1 int V2 int VALUE int COST"));
-			predicate.appendChild(parameters);
-			expression = document.createElement("expression");
-			functional = document.createElement("functional");
-			functional.appendChild(document.createTextNode(" if(gt(abs(sub(V1, V2)),VALUE),0, COST) "));
-			expression.appendChild(functional);
-			predicate.appendChild(expression);
-			predicatesElement.appendChild(predicate);
 			// CREATION DE contraintes
 			Element constraints = document.createElement("constraints");
 			constraints.setAttribute("nbConstraints", String.valueOf(constraintList.size()));
@@ -339,12 +325,12 @@ public class Instance {
 				constraint.setAttribute("arity", "2");
 				constraint.setAttribute("scope", "V"+c.getF1()+" V"+c.getF2());
 				if (c.isDifference()){
-					constraint.setAttribute("reference", "EQUAL");
+					constraint.setAttribute("reference", "EQ");
 				}
 				else if (c.getCost()!= -1) {
-					constraint.setAttribute("reference", "GTSOFT");
+					constraint.setAttribute("reference", "GT");
 				} else {
-					constraint.setAttribute("reference", "GTHARD");
+					constraint.setAttribute("reference", "GT");
 				}
 				Element param = document.createElement("parameters");
 				int cost=-1;
@@ -362,7 +348,7 @@ public class Instance {
 						cost = a4;
 						break;
 				}
-				String params = "V"+c.getF1()+" V"+c.getF2()+ " "+c.getValue()+ (cost!=-1?" "+cost:"");
+				String params = "V"+c.getF1()+" V"+c.getF2()+ " "+c.getValue()+ (cost!=-1?" "+cost:" 0");
 				param.appendChild(document.createTextNode(params));
 				constraint.appendChild(param);
 				constraints.appendChild(constraint);
